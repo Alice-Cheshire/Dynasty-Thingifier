@@ -500,8 +500,8 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
     });
 
     //Unhide spoilers option
-    $('#thingifier-unhide-spoilers').click(function() {
-        DT.spoilers = $('#thingifier-unhide-spoilers').is(":checked");
+    $('#thingifier-unhide-spoilers').change(function() {
+        DT.spoilers = $(this).is(":checked");
         setItem("DT", DT);
         if (DT.spoilers) {
             $('.spoilers').addClass('spoilers-disabled');
@@ -511,10 +511,10 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
     });
 
     //Fixed navbar option
-    $('#thingifier-fixed-navbar').click(function() {
-        DT.navbar = $('#thingifier-fixed-navbar').is(":checked");
+    $('#thingifier-fixed-navbar').change(function() {
+        DT.navbar = $(this).is(":checked");
         setItem("DT", DT);
-        console.log("Navbar option clicked");
+        console.log("Navbar option clicked " + DT.navbar);
         if (DT.navbar) {
             $('.navbar').addClass('navbar-fixed');
             $('div.forum_post').css("padding-top", 40);
@@ -527,8 +527,8 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
     });
 
     //Pagination option
-    $('#thingifier-pagination').click(function() {
-        DT.pagination = $('#thingifier-pagination').is(":checked");
+    $('#thingifier-pagination').change(function() {
+        DT.pagination = $(this).is(":checked");
         setItem("DT", DT);
         if (DT.pagination) {
             $("div.pagination").wrap('<div class=\"tmp\">').parent().html();
@@ -541,8 +541,8 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
     });
 
     //Add bbcode buttons to post page and quick reply
-    $('#thingifier-bbcode-buttons').click(function() {
-        DT.bbcode = $('#thingifier-bbcode-buttons').is(":checked");
+    $('#thingifier-bbcode-buttons').change(function() {
+        DT.bbcode = $(this).is(":checked");
         setItem("DT", DT);
         if (DT.bbcode) {
             $("#forum_post_message").parent().prepend(bbcode_menu);
@@ -552,15 +552,15 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
     });
 
     //Move the quick reply box to the current post
-    $('#thingifier-quote-move-quickreply').click(function() {
-        DT.movequickreply = $('#thingifier-quote-move-quickreply').is(":checked");
+    $('#thingifier-quote-move-quickreply').change(function() {
+        DT.movequickreply = $(this).is(":checked");
         setItem("DT", DT);
-        quickreply = $('#thingifier-quote-move-quickreply').is(":checked");
+        quickreply = $(this).is(":checked");
     });
 
 
-    $('#thingifier-magnifier').click(function() {
-        DT.magnifier = $('#thingifier-magnifier').is(":checked");
+    $('#thingifier-magnifier').change(function() {
+        DT.magnifier = $(this).is(":checked");
         setItem("DT", DT);
         if (pageurl.match(/chapters/) || pageurl.match(/images/) && DT.magnifier) {
             $('body').append('<div id="magnifier"></div>');
@@ -1202,9 +1202,9 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         }
 
         //Only Pending tag suggestions option - By Gwen Hope
-        $('#thingifier-pending-suggestions').click(function() {
+        $('#thingifier-pending-suggestions').change(function() {
             if (pageurl.match(/user\/suggestions/)) {
-                DT.pendtags = $('#thingifier-pending-suggestions').is(":checked"); //Updated to use new settings object
+                DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
                 setItem("DT", DT); //Saves changed settings
                 if (DT.pendtags) { //Updated to use new settings object
                     $('.suggestion-accepted').hide();
