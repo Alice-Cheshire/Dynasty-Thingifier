@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name        Dynasty Thingifier
 // @namespace   Alice Cheshire
+// @author		Alice Cheshire
+// @downloadURL	https://github.com/Alice-Cheshire/Dynasty-Thingifier/raw/master/thingifier.user.js
 // @include     http://dynasty-scans.com/*
 // @include     https://dynasty-scans.com/*
 // @exclude     http://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     http://dynasty-scans.com/*.json
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.2
+// @version     2.21
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -38,7 +40,7 @@ let DTp = {
     pendtags: false,
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.2";
+var DT = getItem("DT", DTp), ver = "2.21";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
@@ -144,8 +146,6 @@ function getClass(cl) {
 
     //Initialize Script
     function init() {
-        //Load our config
-        configload();
 
         //Populate Menu
         $('body').append(`
@@ -444,11 +444,16 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
 </div>
 
 `);
+        //Define menu option handlers (this must happen before loading config)
+        setmenuhandlers();
+
+        //Load our config
+        configload();
 
         //Setup own posts link stuff
         $('#useridinput').hide();
         $('#useridsubmit').hide();
-        if (DT.yourid == "Not Set") {
+        if (DT.yourid == "Not set!") {
             $('#thingifier-ownposts').hide();
             $('#useridinput').show();
             $('#useridsubmit').show();
@@ -493,119 +498,121 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         });
     }
 
-
-    //Menu close/open
-    $('input#thingifier-toggle-button').click(function() {
-        menuclose("click");
-    });
-
-    //Unhide spoilers option
-    $('#thingifier-unhide-spoilers').click(function() {
-        DT.spoilers = $('#thingifier-unhide-spoilers').is(":checked");
-        setItem("DT", DT);
-        if (DT.spoilers) {
-            $('.spoilers').addClass('spoilers-disabled');
-        } else {
-            $('.spoilers').removeClass('spoilers-disabled');
-        }
-    });
-
-    //Fixed navbar option
-    $('#thingifier-fixed-navbar').click(function() {
-        DT.navbar = $('#thingifier-fixed-navbar').is(":checked");
-        setItem("DT", DT);
-        console.log("Navbar option clicked");
-        if (DT.navbar) {
-            $('.navbar').addClass('navbar-fixed');
-            $('div.forum_post').css("padding-top", 40);
-            $("<div class=\"nav-padding\"></div>").insertAfter(".navbar");
-        } else {
-            $('.navbar').removeClass('navbar-fixed');
-            $('div.forum_post').css("padding-top", 0);
-            $('div.nav-padding').remove();
-        }
-    });
-
-    //Pagination option
-    $('#thingifier-pagination').click(function() {
-        DT.pagination = $('#thingifier-pagination').is(":checked");
-        setItem("DT", DT);
-        if (DT.pagination) {
-            $("div.pagination").wrap('<div class=\"tmp\">').parent().html();
-            var tmp = $('div.tmp').html();
-            $("div.pagination").unwrap();
-            $('#main').prepend(tmp);
-        } else {
-            $("div.pagination").first().remove();
-        }
-    });
-
-    //Add bbcode buttons to post page and quick reply
-    $('#thingifier-bbcode-buttons').click(function() {
-        DT.bbcode = $('#thingifier-bbcode-buttons').is(":checked");
-        setItem("DT", DT);
-        if (DT.bbcode) {
-            $("#forum_post_message").parent().prepend(bbcode_menu);
-        } else {
-            $("div#thingifier-bbcode").remove();
-        }
-    });
-
-    //Move the quick reply box to the current post
-    $('#thingifier-quote-move-quickreply').click(function() {
-        DT.movequickreply = $('#thingifier-quote-move-quickreply').is(":checked");
-        setItem("DT", DT);
-        quickreply = $('#thingifier-quote-move-quickreply').is(":checked");
-    });
-
-
-    $('#thingifier-magnifier').click(function() {
-        DT.magnifier = $('#thingifier-magnifier').is(":checked");
-        setItem("DT", DT);
-        if (pageurl.match(/chapters/) || pageurl.match(/images/) && DT.magnifier) {
-            $('body').append('<div id="magnifier"></div>');
-        } else {
-            $('#magnifier').remove();
-        }
-
-    });
-
-    //Font size slider
-    $('#thingifier-font-size').on('input', function() {
-        fontsize[0] = parseInt($(this).val());
-        $('.message *').removeClass('forum_post_one');
-        $('.message *').removeClass('forum_post_two');
-        $('.message *').removeClass('forum_post_three');
-        $('.message *').removeClass('forum_post_four');
-        $('.message *').removeClass('forum_post_five');
-        $('.message *').addClass('forum_post_' + fontsize[fontsize[0]]);
-        DT.fontsize = fontsize[0];
-        setItem("DT", DT);
-    });
-
-    //Reset font size
-    $('#thingifier-reset-font').click(function() {
-        $('.message *').removeClass('forum_post_one');
-        $('.message *').removeClass('forum_post_two');
-        $('.message *').removeClass('forum_post_three');
-        $('.message *').removeClass('forum_post_four');
-        $('.message *').removeClass('forum_post_five');
-        $('#thingifier-font-size').val(3);
-        DT.fontsize = null;
-        setItem("DT", DT);
-    });
-
-    //Clear saved data
-    $('#thingifier-clear').click(function() {
-        var x = window.confirm("Are you sure you want to clear your stored data?");
-        if (x) {
-            DT = DTp;
+    //Define event handlers for options menu items
+    function setmenuhandlers() {
+        //Menu close/open
+        $('input#thingifier-toggle-button').click(function() {
+            menuclose("click");
+        });
+    
+        //Unhide spoilers option
+        $('#thingifier-unhide-spoilers').change(function() {
+            DT.spoilers = $(this).is(":checked");
             setItem("DT", DT);
-            document.location.reload(true);
-        } else {
-            console.log("Decided against it");
-        }
-    });
+            if (DT.spoilers) {
+                $('.spoilers').addClass('spoilers-disabled');
+            } else {
+                $('.spoilers').removeClass('spoilers-disabled');
+            }
+        });
+    
+        //Fixed navbar option
+        $('#thingifier-fixed-navbar').change(function() {
+            DT.navbar = $(this).is(":checked");
+            setItem("DT", DT);
+            console.log("Navbar option clicked " + DT.navbar);
+            if (DT.navbar) {
+                $('.navbar').addClass('navbar-fixed');
+                $('div.forum_post').css("padding-top", 40);
+                $("<div class=\"nav-padding\"></div>").insertAfter(".navbar");
+            } else {
+                $('.navbar').removeClass('navbar-fixed');
+                $('div.forum_post').css("padding-top", 0);
+                $('div.nav-padding').remove();
+            }
+        });
+    
+        //Pagination option
+        $('#thingifier-pagination').change(function() {
+            DT.pagination = $(this).is(":checked");
+            setItem("DT", DT);
+            if (DT.pagination) {
+                $("div.pagination").wrap('<div class=\"tmp\">').parent().html();
+                var tmp = $('div.tmp').html();
+                $("div.pagination").unwrap();
+                $('#main').prepend(tmp);
+            } else {
+                $("div.pagination").first().remove();
+            }
+        });
+    
+        //Add bbcode buttons to post page and quick reply
+        $('#thingifier-bbcode-buttons').change(function() {
+            DT.bbcode = $(this).is(":checked");
+            setItem("DT", DT);
+            if (DT.bbcode) {
+                $("#forum_post_message").parent().prepend(bbcode_menu);
+            } else {
+                $("div#thingifier-bbcode").remove();
+            }
+        });
+    
+        //Move the quick reply box to the current post
+        $('#thingifier-quote-move-quickreply').change(function() {
+            DT.movequickreply = $(this).is(":checked");
+            setItem("DT", DT);
+            quickreply = $(this).is(":checked");
+        });
+    
+    
+        $('#thingifier-magnifier').change(function() {
+            DT.magnifier = $(this).is(":checked");
+            setItem("DT", DT);
+            if (pageurl.match(/chapters/) || pageurl.match(/images/) && DT.magnifier) {
+                $('body').append('<div id="magnifier"></div>');
+            } else {
+                $('#magnifier').remove();
+            }
+    
+        });
+    
+        //Font size slider
+        $('#thingifier-font-size').on('input', function() {
+            fontsize[0] = parseInt($(this).val());
+            $('.message *').removeClass('forum_post_one');
+            $('.message *').removeClass('forum_post_two');
+            $('.message *').removeClass('forum_post_three');
+            $('.message *').removeClass('forum_post_four');
+            $('.message *').removeClass('forum_post_five');
+            $('.message *').addClass('forum_post_' + fontsize[fontsize[0]]);
+            DT.fontsize = fontsize[0];
+            setItem("DT", DT);
+        });
+    
+        //Reset font size
+        $('#thingifier-reset-font').click(function() {
+            $('.message *').removeClass('forum_post_one');
+            $('.message *').removeClass('forum_post_two');
+            $('.message *').removeClass('forum_post_three');
+            $('.message *').removeClass('forum_post_four');
+            $('.message *').removeClass('forum_post_five');
+            $('#thingifier-font-size').val(3);
+            DT.fontsize = null;
+            setItem("DT", DT);
+        });
+    
+        //Clear saved data
+        $('#thingifier-clear').click(function() {
+            var x = window.confirm("Are you sure you want to clear your stored data?");
+            if (x) {
+                DT = DTp;
+                setItem("DT", DT);
+                document.location.reload(true);
+            } else {
+                console.log("Decided against it");
+            }
+        });
+    }
 
     //Load our config
     function configload() {
@@ -614,53 +621,54 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             //Deal with our current menu state
             menuclose("load");
 
-            setTimeout(function() {
-                //Check if spoilers are unhidden
-                if (DT.spoilers) {
-                    $('#thingifier-unhide-spoilers').click();
-                }
 
-                //Check if the fixed navbar is enabled
-                if (DT.navbar) {
-                    $('#thingifier-fixed-navbar').click();
-                }
+            //Check if spoilers are unhidden
+            if (DT.spoilers) {
+                $('#thingifier-unhide-spoilers').click();
+            }
 
-                //Check if pagination option is enabled
-                if (DT.pagination) {
-                    $('#thingifier-pagination').click();
-                }
+            //Check if the fixed navbar is enabled
+            if (DT.navbar) {
+                $('#thingifier-fixed-navbar').click();
+            }
 
-                //Check if we've changed the font size and retrieve it
-                fontsize[0] = DT.fontsize;
-                if (fontsize[0] !== null && typeof fontsize[0] !== "undefined") {
-                    $('#thingifier-font-size').val(fontsize[0]);
-                    $('.message *').addClass('forum_post_' + fontsize[fontsize[0]]);
-                }
+            //Check if pagination option is enabled
+            if (DT.pagination) {
+                $('#thingifier-pagination').click();
+            }
 
-                //Check if bbcode buttons are enabled
-                if (DT.bbcode) {
-                    $('#thingifier-bbcode-buttons').click();
-                }
+            //Check if we've changed the font size and retrieve it
+            fontsize[0] = DT.fontsize;
+            if (fontsize[0] !== null && typeof fontsize[0] !== "undefined") {
+                $('#thingifier-font-size').val(fontsize[0]);
+                $('.message *').addClass('forum_post_' + fontsize[fontsize[0]]);
+            }
 
-                //Check if quote to quick reply option is enabled
-                if (DT.quote2quickreply) {
-                    $('#thingifier-quote-to-quickreply').click();
-                }
+            //Check if bbcode buttons are enabled
+            if (DT.bbcode) {
+                $('#thingifier-bbcode-buttons').click();
+            }
 
-                //Check if the move quick reply box option is enabled
-                if (DT.movequickreply) {
-                    $('#thingifier-quote-move-quickreply').click();
-                }
+            //Check if quote to quick reply option is enabled
+            if (DT.quote2quickreply) {
+                $('#thingifier-quote-to-quickreply').click();
+            }
 
-                //Check if the magnifier option is enabled
-                if (DT.magnifier) {
-                    $('#thingifier-magnifier').click();
-                }
+            //Check if the move quick reply box option is enabled
+            if (DT.movequickreply) {
+                $('#thingifier-quote-move-quickreply').click();
+            }
 
-                if (DT.pendtags) {
-                    $('#thingifier-pending-suggestions').click();
-                }
-            }, 100);
+            //Check if the magnifier option is enabled
+            if (DT.magnifier) {
+                $('#thingifier-magnifier').click();
+            }
+
+            //Check if the pending tags option is enabled
+            //Currently broken though for some reason?
+            if (DT.pendtags) {
+                $('#thingifier-pending-suggestions').click();
+            }
 
             bbcode();
         });
@@ -942,8 +950,9 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
 
         //Check that the current page is the new posts page
         if (pageurl.match(/posts\/new/)) {
-            var post = getItem("quoteid", false);
-            var username = getItem("quotename", false);
+            //Don't use the custom getItem() for these. That's only meant for JSON items
+            var post = localStorage.getItem("quoteid", false);
+            var username = localStorage.getItem("quotename", false);
             if (!!post && !!username) {
                 quote = "> [**" + username + "** posted:](" + post + ") \n> ";
                 var message = "\n" + $('#forum_post_message').val();
@@ -1202,10 +1211,11 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         }
 
         //Only Pending tag suggestions option - By Gwen Hope
-        $('#thingifier-pending-suggestions').click(function() {
+        $('#thingifier-pending-suggestions').change(function() {
+            DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
+            setItem("DT", DT); //Saves changed settings
             if (pageurl.match(/user\/suggestions/)) {
-                DT.pendtags = $('#thingifier-pending-suggestions').is(":checked"); //Updated to use new settings object
-                setItem("DT", DT); //Saves changed settings
+                console.log("User suggestions page");
                 if (DT.pendtags) { //Updated to use new settings object
                     $('.suggestion-accepted').hide();
                     $('.suggestion-rejected').hide();
@@ -1231,8 +1241,9 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             .done(function(data) {
             quote[postid] = htmlDecode($(data).find('#forum_post_message'));
             $('#forum_post_message').val(quote[postid]);
-            let post = getItem("quoteid");
-            let username = getItem("quotename");
+            //Don't use the custom getItem() for these. That's only meant for JSON items
+            var post = localStorage.getItem("quoteid", false);
+            var username = localStorage.getItem("quotename", false);
             let quoting = "> [**" + username + "** posted:](" + post + ") \n> ";
             message = htmlDecode(data.replace(/([\u0000-\uffff]+<textarea .+ id="forum_post_message".+>)([\u0000-\uffff]+)(<\/textarea>[\u0000-\uffff]+)/, "$2"));
             $('#forum_post_message').val(quoting + message);
