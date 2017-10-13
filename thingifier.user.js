@@ -612,6 +612,22 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
                 console.log("Decided against it");
             }
         });
+
+        //Only Pending tag suggestions option - By Gwen Hope
+        $('#thingifier-pending-suggestions').change(function() {
+            DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
+            setItem("DT", DT); //Saves changed settings
+            if (pageurl.match(/user\/suggestions/)) {
+                if (DT.pendtags) { //Updated to use new settings object
+                    $('.suggestion-accepted').hide();
+                    $('.suggestion-rejected').hide();
+                }
+                else {
+                    $('.suggestion-accepted').show();
+                    $('.suggestion-rejected').show();
+                }
+            }
+        });
     }
 
     //Load our config
@@ -1210,22 +1226,6 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             }
         }
 
-        //Only Pending tag suggestions option - By Gwen Hope
-        $('#thingifier-pending-suggestions').change(function() {
-            DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
-            setItem("DT", DT); //Saves changed settings
-            if (pageurl.match(/user\/suggestions/)) {
-                console.log("User suggestions page");
-                if (DT.pendtags) { //Updated to use new settings object
-                    $('.suggestion-accepted').hide();
-                    $('.suggestion-rejected').hide();
-                }
-                else {
-                    $('.suggestion-accepted').show();
-                    $('.suggestion-rejected').show();
-                }
-            }
-        });
 
     });//$(document).ready() end
 
