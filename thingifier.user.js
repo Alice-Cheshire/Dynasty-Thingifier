@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name        Dynasty Thingifier
 // @namespace   Alice Cheshire
+// @author		Alice Cheshire
+// @downloadURL	https://github.com/Alice-Cheshire/Dynasty-Thingifier/raw/master/thingifier.user.js
 // @include     http://dynasty-scans.com/*
 // @include     https://dynasty-scans.com/*
 // @exclude     http://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     http://dynasty-scans.com/*.json
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.2
+// @version     2.21
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -38,7 +40,7 @@ let DTp = {
     pendtags: false,
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.2";
+var DT = getItem("DT", DTp), ver = "2.21";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
@@ -451,7 +453,7 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         //Setup own posts link stuff
         $('#useridinput').hide();
         $('#useridsubmit').hide();
-        if (DT.yourid == "Not Set") {
+        if (DT.yourid == "Not set!") {
             $('#thingifier-ownposts').hide();
             $('#useridinput').show();
             $('#useridsubmit').show();
@@ -662,6 +664,8 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
                 $('#thingifier-magnifier').click();
             }
 
+            //Check if the pending tags option is enabled
+            //Currently broken though for some reason?
             if (DT.pendtags) {
                 $('#thingifier-pending-suggestions').click();
             }
@@ -946,8 +950,9 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
 
         //Check that the current page is the new posts page
         if (pageurl.match(/posts\/new/)) {
-            var post = getItem("quoteid", false);
-            var username = getItem("quotename", false);
+            //Don't use the custom getItem() for these. That's only meant for JSON items
+            var post = localStorage.getItem("quoteid", false);
+            var username = localStorage.getItem("quotename", false);
             if (!!post && !!username) {
                 quote = "> [**" + username + "** posted:](" + post + ") \n> ";
                 var message = "\n" + $('#forum_post_message').val();
@@ -1207,9 +1212,10 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
 
         //Only Pending tag suggestions option - By Gwen Hope
         $('#thingifier-pending-suggestions').change(function() {
+            DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
+            setItem("DT", DT); //Saves changed settings
             if (pageurl.match(/user\/suggestions/)) {
-                DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
-                setItem("DT", DT); //Saves changed settings
+                console.log("User suggestions page");
                 if (DT.pendtags) { //Updated to use new settings object
                     $('.suggestion-accepted').hide();
                     $('.suggestion-rejected').hide();
@@ -1235,8 +1241,9 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             .done(function(data) {
             quote[postid] = htmlDecode($(data).find('#forum_post_message'));
             $('#forum_post_message').val(quote[postid]);
-            let post = getItem("quoteid");
-            let username = getItem("quotename");
+            //Don't use the custom getItem() for these. That's only meant for JSON items
+            var post = localStorage.getItem("quoteid", false);
+            var username = localStorage.getItem("quotename", false);
             let quoting = "> [**" + username + "** posted:](" + post + ") \n> ";
             message = htmlDecode(data.replace(/([\u0000-\uffff]+<textarea .+ id="forum_post_message".+>)([\u0000-\uffff]+)(<\/textarea>[\u0000-\uffff]+)/, "$2"));
             $('#forum_post_message').val(quoting + message);
