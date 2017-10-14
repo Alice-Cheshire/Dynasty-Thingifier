@@ -3,13 +3,10 @@
 // @namespace   Alice Cheshire
 // @author		Alice Cheshire
 // @downloadURL	https://github.com/Alice-Cheshire/Dynasty-Thingifier/raw/master/thingifier.user.js
-// @include     http://dynasty-scans.com/*
 // @include     https://dynasty-scans.com/*
-// @exclude     http://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/system/*
-// @exclude     http://dynasty-scans.com/*.json
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.21
+// @version     2.23
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
