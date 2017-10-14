@@ -37,7 +37,7 @@ let DTp = {
     pendtags: false,
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.21";
+var DT = getItem("DT", DTp), ver = "2.23";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
