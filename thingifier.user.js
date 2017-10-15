@@ -6,7 +6,7 @@
 // @include     https://dynasty-scans.com/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.23
+// @version     2.24
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -37,7 +37,7 @@ let DTp = {
     pendtags: false,
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.23";
+var DT = getItem("DT", DTp), ver = "2.24";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
@@ -152,6 +152,7 @@ float: left;
 z-index: 1000 !important;
 max-width: 340px;
 max-height: 255px !important;
+display: none;
 }
 #thingifier, #magnifier-settings, #magnifier-submenu-toggle {
 top: 25%;
@@ -700,6 +701,7 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
                 }
                 $("#thingifier-magnifier-menu").fadeToggle(0);
                 $("#magnifier-tooltip").fadeToggle(0);
+                $("#thingifier").css("display", "initial");
             }, 100);
 
             //Runs when clicking the button
