@@ -6,7 +6,7 @@
 // @include     https://dynasty-scans.com/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.24
+// @version     2.241
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -34,10 +34,9 @@ let DTp = {
         zoomFactor: "250",
         border: "0"
     },
-    pendtags: false,
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.24";
+var DT = getItem("DT", DTp), ver = "2.241";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
@@ -59,7 +58,6 @@ if (parseFloat(DT.ver) < 2.2) {
             zoomFactor: GM_getValue("magZoomFactor", "250"),
             border: GM_getValue("magBorder", "0")
         },
-        pendtags: GM_getValue("pendtags", false),
         ver: ver
     };
     setItem("DT", DT);
@@ -403,7 +401,6 @@ cursor: pointer !important;
 <li><input type="checkbox" id="thingifier-quote-to-quickreply"> Quote to quick reply instead of new post page</li>
 <li><input type="checkbox" id="thingifier-quote-move-quickreply"> Move quick reply to under quoted post</li>
 <li><input type="checkbox" id="thingifier-magnifier" tooltip="Press Z or middle mouse click"> Magnifier on reader and image pages</li>
-<li><input type="checkbox" id="thingifier-pending-suggestions"> Show only "Pending" tag suggestions</li>
 <li><input type="range" id="thingifier-font-size" min="1" max="5"> Change font size <input type="button" id="thingifier-reset-font" value="Reset Font Size"></li>
 <li><a href="https://dynasty-scans.com/forum/posts?user_id=${DT.yourid}" id="thingifier-ownposts"> Your posts</a></li>
 <li><input type="text" id="useridinput"><input type="button" value="Submit user id" id="useridsubmit"></li>
@@ -611,21 +608,6 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             }
         });
 
-        //Only Pending tag suggestions option - By Gwen Hope
-        $('#thingifier-pending-suggestions').change(function() {
-            DT.pendtags = $(this).is(":checked"); //Updated to use new settings object
-            setItem("DT", DT); //Saves changed settings
-            if (pageurl.match(/user\/suggestions/)) {
-                if (DT.pendtags) { //Updated to use new settings object
-                    $('.suggestion-accepted').hide();
-                    $('.suggestion-rejected').hide();
-                }
-                else {
-                    $('.suggestion-accepted').show();
-                    $('.suggestion-rejected').show();
-                }
-            }
-        });
     }
 
     //Load our config
@@ -676,12 +658,6 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
             //Check if the magnifier option is enabled
             if (DT.magnifier) {
                 $('#thingifier-magnifier').click();
-            }
-
-            //Check if the pending tags option is enabled
-            //Currently broken though for some reason?
-            if (DT.pendtags) {
-                $('#thingifier-pending-suggestions').click();
             }
 
             bbcode();
