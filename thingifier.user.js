@@ -6,7 +6,7 @@
 // @include     https://dynasty-scans.com/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.241
+// @version     2.242
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -41,7 +41,7 @@ console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
     DT = {
-        yourid: GM_getValue("youruserid", "Not set!"),
+        yourid: GM_getValue("yourid", "Not set!"),
         spoilers: GM_getValue("spoilers", false),
         navbar: GM_getValue("navbar", false),
         pagination: GM_getValue("pagination", false),
@@ -403,7 +403,7 @@ cursor: pointer !important;
 <li><input type="checkbox" id="thingifier-magnifier" tooltip="Press Z or middle mouse click"> Magnifier on reader and image pages</li>
 <li><input type="range" id="thingifier-font-size" min="1" max="5"> Change font size <input type="button" id="thingifier-reset-font" value="Reset Font Size"></li>
 <li><a href="https://dynasty-scans.com/forum/posts?user_id=${DT.yourid}" id="thingifier-ownposts"> Your posts</a></li>
-<li><input type="text" id="useridinput"><input type="button" value="Submit user id" id="useridsubmit"></li>
+<li><span id="useridinfo">Please navigate to a Forum thread to automatically set your forum user ID.</span></li>
 <li><input type="button" id="thingifier-clear" value="Clear stored data"></li>
 </ul>
 </div>
@@ -445,15 +445,20 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         //Load our config
         configload();
 
-        //Setup own posts link stuff
-        $('#useridinput').hide();
-        $('#useridsubmit').hide();
+        //Setup own posts link stuff - redesigned by gwennie-chan
         if (DT.yourid == "Not set!") {
             $('#thingifier-ownposts').hide();
-            $('#useridinput').show();
-            $('#useridsubmit').show();
-            setuserid();
+            $('#useridinfo').show();
         }
+		else if (DT.yourid.match(/\d+/)) {
+			$('#thingifier-ownposts').attr('href', "//dynasty-scans.com/forum/posts?user_id=" + DT.yourid);
+			$('#useridinfo').hide();
+			$('#thingifier-ownposts').show();
+		}
+		else {
+			$('#useridinfo').text("Invalid ID Present");
+			$('#useridinfo').show();
+		}
 
         //Check we're viewing a thread
         if (pageurl.match(/forum\/topics/)) {
@@ -469,29 +474,26 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
                 if (!DT.yourid.match(/dynasty-scans/) && DT.yourid !== "Not set!"){
                     DT.yourid = `//dynasty-scans.com/forum/posts?user_id=${DT.yourid}`;
                 }
-            } else {
-                DT.yourid = "Not set!";
+            }
+			else {
+				getuserid(); //added by gwennie-chan
             }
         }
     }
 
-    //Set user ID for own posts link
-    function setuserid() {
-        $('input#useridsubmit').click(function () {
-            if($("input#useridinput").val().match(/^\d+$/)) {
-                DT.yourid = $('input#useridinput').val();
-                $('#useridinput').hide();
-                $('#useridsubmit').hide();
-                $('#thingifier-ownposts').show();
-                $('#thingifier-ownposts').attr('href', "//dynasty-scans.com/forum/posts?user_id=" + DT.yourid);
-            } else {
-                DT.yourid = "Not set!";
-                $("input#useridinput").val();
-                $('input#useridinput').val("Invalid user id!");
-            }
-            setItem("DT", DT);
-        });
-    }
+	//Extracts user ID from forum page/posts - by gwennie-chan
+	function getuserid() {
+			var tempUser = $('a[href="/user"] strong').text().trim();
+					$('.forum_post').each(function(){
+						var postUser = $(this).find('.user').text().trim();
+						console.log(tempUser,postUser);
+						if(postUser == tempUser && DT.yourid == "Not set!"){
+							DT.yourid =$(this).find('.count a').attr("href").replace(/\D+/g, '');
+						}
+						
+					});
+		setItem("DT", DT);
+	}
 
     //Define event handlers for options menu items
     function setmenuhandlers() {
