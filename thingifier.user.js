@@ -6,7 +6,7 @@
 // @include     https://dynasty-scans.com/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.241+gwendev
+// @version     2.242
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
