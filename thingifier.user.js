@@ -6,7 +6,7 @@
 // @include     https://dynasty-scans.com/*
 // @exclude     https://dynasty-scans.com/system/*
 // @exclude     https://dynasty-scans.com/*.json
-// @version     2.242
+// @version     2.243
 // @description Adds post links and quote stuff to Dynasty forums
 // @grant		GM_getValue
 // @grant		GM_listValue
@@ -36,7 +36,7 @@ let DTp = {
     },
     ver: "1"
 };
-var DT = getItem("DT", DTp), ver = "2.241";
+var DT = getItem("DT", DTp), ver = "2.243";
 console.log(DT.ver, " - ", parseFloat(DT.ver), " - ", parseInt(DT.ver) < 2.2);
 if (parseFloat(DT.ver) < 2.2) {
     console.log("Old Thingifier version < 2.2!");
@@ -918,7 +918,7 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
         });
 
         $(document).on("click", "input#thingifier-cancel", function(){
-            console.log("Clicked");
+			document.getElementById("forum_post_message").value = '';
             var replybox = $('#new_forum_post').detach();
             $("#thingifier-quickreply").remove();
             replybox.appendTo('div.row:last');
@@ -957,9 +957,15 @@ Shape: <input type="radio" id="squareborder" val="square" name="magnifier-shape"
 
         //Insert "unread posts" button after thread link in manga viewer
         if (pageurl.match(/chapters/)) {
-            var mangathread = '<a class="btn btn-mini" title="View latest unread post in thread"href="' + $('div.btn-toolbar div.btn-group:first-child a.btn:first-child').attr('href') + '/unread"><i class="icon-comment"></i>Unread</a>';
+            var mangathread = `<a class="btn btn-mini" title="View latest unread post in thread"href="${$('div.btn-toolbar div.btn-group:first-child a.btn:first-child').attr('href')}/unread"><i class="icon-comment"></i>Unread</a>`;
             $(mangathread).insertAfter('div.btn-toolbar div.btn-group:first-child a.btn:first-child');
-        }
+        } else if (pageurl.match(/series/) || pageurl.match(/anthologies/)) {
+			var thread = document.getElementsByClassName("btn-mini")[0];
+			if (thread.innerText !== "") {
+			var mangathread = `<a class="btn btn-mini" title="View latest unread post in thread"href="${thread.href}/unread"><i class="icon-comment"></i>Unread</a>`;
+				$(mangathread).insertAfter(thread);
+			}
+		}
 
         //Insert last post link to read threads
         if (pageurl.match(/\/forum(?!\/topics)/)) {
