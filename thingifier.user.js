@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Dynasty Thingifier
+// @name        Dynasty Thingifier (Dev)
 // @namespace   Alice Cheshire
 // @author		Alice Cheshire
 // @downloadURL	https://github.com/Alice-Cheshire/Dynasty-Thingifier/raw/master/thingifier.user.js
